@@ -5,18 +5,12 @@ nodejs ueditor can upload images
 
 Build Setup (建置步驟)
 
-# 安裝依賴套件
-npm install
+```javascript
+const express = require('express');
+const app = express();
 
-# 運行 server 伺服器，部署在 8888 埠號 (port) 上
-cd server
-node index.js
-
-# 運行用戶端 (client)，部署在 8080 埠號上，熱載入
-npm run dev
-
-# 生產環境編譯與壓縮
-npm run build
-
+app.listen(8888, () => {
+  console.log("Server is running!");
+});
 
 
