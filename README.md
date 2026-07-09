@@ -31,8 +31,9 @@ npm run build
 
 3. 建立靜態資源資料夾
 
-4.建立主程式檔案:
+4. 建立主程式檔案:
 
+```
       var express = require('express');
 var app = express();
 var ueditor = require('ueditor');
@@ -103,11 +104,13 @@ app.use(function(err, req, res, next){
 app.listen(8888, function(){
     console.log("Express started on http://localhost:8888 ; press Ctrl-c to terminate");
 });
+
+```
    5.修改現在伺服器運行監聽的話是8888端口，客戶端運行的是8080端口，所以還需要進一步
 
    6. 設定開發環境代理（Proxy）
    請在專案的 config/index.js 檔案中，找到 proxyTable: {} 欄位，並將其修改、增加為以下內容：
-
+```
                '/ueditor': {
                    target: 'http://localhost:8888/',
                    changeOrigin: true,
@@ -129,6 +132,7 @@ app.listen(8888, function(){
                        '^/img': '/img'
                    }
                }
+```
    7.至此可以正常运行，先跑server node index.js,再跑客户端npm run dev
 
    ​
