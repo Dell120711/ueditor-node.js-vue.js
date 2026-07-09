@@ -1,4 +1,4 @@
-# node.js + vue.js 搭建ueditor   
+# Node.js + Vue.js 搭建 UEditor 專案
 
 > A Vue.js project 
 >
@@ -10,12 +10,12 @@
 # install dependencies
 npm install
 
-# 运行server服务器，部署在8888端口号上
+# 後端服務將部署在 8888 埠號 (Port) 上：
 cd server
 node index.js
 
 
-# 运行客户端 部署在端口号8080上，热加载
+# 前端服務將部署在 8080 埠號上，並支援熱載入 (Hot Reload)：
 npm run dev
 
 # build for production with minification
@@ -29,78 +29,86 @@ npm run build
 
 1. npm init
 
-2. 服务器下载安装express和ueditor    npm install --save express    和ueditor
+2. 下載並安裝 Express 與 UEditor
 
-3. 建立public 文件夹，将ueditor中的example中的public复制到刚建立的public下
+3. 建立靜態資源資料夾
 
-4. 建立index.js文件，代码为：
+4.建立主程式檔案:
 
+      var express = require('express');
+var app = express();
+var ueditor = require('ueditor');
+var path = require('path');
+var bodyParser = require('body-parser');
 
-       var express =require('express');
-       var app=express();
-       var ueditor=require('ueditor');
-       var path = require('path');
-       var bodyParser = require('body-parser');
-       app.use(bodyParser.urlencoded({
-       extended: true
-       }));
-       
-       app.use(bodyParser.json());
-       // app.set('port',process.env.PORT||3000);
-       app.get('/',function(req,res){
-       res.type('text/plain');
-       res.send('hello world!');
-       })
-       app.use(express.static('public'));
-       app.use("/ueditor/ue", ueditor(path.join(__dirname, 'public'), function (req, res, next) {
-       //客户端上传文件设置
-       var imgDir = '/img/ueditor/'
-        var ActionType = req.query.action;
-       if (ActionType === 'uploadimage' || ActionType === 'uploadfile' || ActionType === 'uploadvideo') {
-           var file_url = imgDir;//默认图片上传地址
-           /*其他上传格式的地址*/
-           if (ActionType === 'uploadfile') {
-               file_url = '/file/ueditor/'; //附件
-           }
-           if (ActionType === 'uploadvideo') {
-               file_url = '/video/ueditor/'; //视频
-           }
-           res.ue_up(file_url); //你只要输入要保存的地址 。保存操作交给ueditor来做
-           res.setHeader('Content-Type', 'text/html');
-       }
-       //  客户端发起图片列表请求
-       else if (req.query.action === 'listimage') {
-           var dir_url = imgDir;
-           res.ue_list(dir_url); // 客户端会列出 dir_url 目录下的所有图片
-       }
-       // 客户端发起其它请求
-       else {
-           // console.log('config.json')
-           res.setHeader('Content-Type', 'application/json');
-           res.redirect('/nodejs/config.json');
-       }
-       }));
-       //定制404页面
-       app.use(function(req,res){
-       res.type('text/plain');
-       res.status(404);
-       res.send('404---not found');
-       });
-       //定制505页面
-       app.use(function(err,req,res,next){
-       console.error(err.stack);
-       res.type('text/plain');
-       res.status(500);
-       res.send('500 - Server Error');
-       })
-       
-       app.listen(8888,function(){
-       console.log("Express started on http://localhost:8888"+
-           ";press Ctrl-c to terminate")
-       })
-   5.现在server运行的话监听的是8888端口，客户端运行的是8080端口，所以还需要进一步修改
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+app.use(bodyParser.json());
 
-   6.在config中的index.js中的proxyTable:{}中增加：
+// 測試根路由
+app.get('/', function(req, res){
+    res.type('text/plain');
+    res.send('hello world!');
+});
+
+// 設定靜態檔案目錄
+app.use(express.static('public'));
+
+// UEditor 核心處理路由
+app.use("/ueditor/ue", ueditor(path.join(__dirname, 'public'), function (req, res, next) {
+    // 用戶端上傳檔案設定
+    var imgDir = '/img/ueditor/'; // 預設圖片上傳路徑
+    var ActionType = req.query.action;
+    
+    if (ActionType === 'uploadimage' || ActionType === 'uploadfile' || ActionType === 'uploadvideo') {
+        var file_url = imgDir;
+        
+        /* 其他上傳格式的路徑調整 */
+        if (ActionType === 'uploadfile') {
+            file_url = '/file/ueditor/'; // 附件
+        }
+        if (ActionType === 'uploadvideo') {
+            file_url = '/video/ueditor/'; // 影片
+        }
+        res.ue_up(file_url); // 您只需要輸入要儲存的路徑，儲存操作交給 ueditor 處理
+        res.setHeader('Content-Type', 'text/html');
+    }
+    // 用戶端發起圖片列表請求（線上管理）
+    else if (req.query.action === 'listimage') {
+        var dir_url = imgDir;
+        res.ue_list(dir_url); // 用戶端會列出 dir_url 目錄下的所有圖片
+    }
+    // 用戶端發起其它請求（如獲取前端配置 config.json）
+    else {
+        res.setHeader('Content-Type', 'application/json');
+        res.redirect('/nodejs/config.json');
+    }
+}));
+
+// 定製 404 頁面
+app.use(function(req, res){
+    res.type('text/plain');
+    res.status(404);
+    res.send('404 --- Not Found');
+});
+
+// 定製 500 頁面
+app.use(function(err, req, res, next){
+    console.error(err.stack);
+    res.type('text/plain');
+    res.status(500);
+    res.send('500 - Server Error');
+});
+
+// 監聽 8888 埠號
+app.listen(8888, function(){
+    console.log("Express started on http://localhost:8888 ; press Ctrl-c to terminate");
+});
+   5.修改現在伺服器運行監聽的話是8888端口，客戶端運行的是8080端口，所以還需要進一步
+
+   6. 設定開發環境代理（Proxy）
+   請在專案的 config/index.js 檔案中，找到 proxyTable: {} 欄位，並將其修改、增加為以下內容：
 
                '/ueditor': {
                    target: 'http://localhost:8888/',
