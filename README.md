@@ -85,14 +85,14 @@ app.use("/ueditor/ue", ueditor(path.join(__dirname, 'public'), function (req, re
     }
 }));
 
-// 定製 404 頁面
+// Define 404 頁面
 app.use(function(req, res){
     res.type('text/plain');
     res.status(404);
     res.send('404 --- Not Found');
 });
 
-// 定製 500 頁面
+// Define 500 頁面
 app.use(function(err, req, res, next){
     console.error(err.stack);
     res.type('text/plain');
