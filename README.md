@@ -23,8 +23,6 @@ npm run build
 
 ```
 
-
-
 安装server:
 
 1. npm init
